@@ -34,9 +34,24 @@ def chat(body: ChatIn):
         result = graph.invoke({"messages": [HumanMessage(content=body.message)]}, cfg)
     except Exception as e:
         import traceback
-        print(f"ERROR: {e}")
+        error_msg = str(e)
+        print(f"ERROR: {error_msg}")
         print(traceback.format_exc())
-        raise HTTPException(500, str(e))
+        
+        # Check if it's a quota error
+        if "quota" in error_msg.lower() or "429" in error_msg or "RESOURCE_EXHAUSTED" in error_msg:
+            return {
+                "reply": "I apologize, but I've reached my daily quota limit. Please try again tomorrow or use a different API key.",
+                "trace": [],
+                "error": "quota_exceeded"
+            }
+        
+        # Return JSON error instead of raising HTTPException
+        return {
+            "reply": f"Sorry, I encountered an error: {error_msg[:100]}. Please try again.",
+            "trace": [],
+            "error": "server_error"
+        }
 
     msgs = result["messages"]
     last_human = max(i for i, m in enumerate(msgs) if isinstance(m, HumanMessage))
