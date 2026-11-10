@@ -1,0 +1,874 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Virtual KAM - Snapdeal Seller Experience</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: #f5f5f7;
+    color: #1a1a1a;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  /* Header */
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding: 16px 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  
+  .logo {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #e40046, #ff1966);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: white;
+    font-weight: 700;
+  }
+  
+  .header-text h1 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1a1a1a;
+  }
+  
+  .header-text p {
+    font-size: 13px;
+    color: #6c757d;
+  }
+  
+  .seller-info {
+    margin-left: auto;
+    text-align: right;
+  }
+  
+  .seller-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a1a1a;
+  }
+  
+  .seller-store {
+    font-size: 12px;
+    color: #6c757d;
+  }
+  
+  /* Main Grid */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    gap: 24px;
+  }
+  
+  @media (max-width: 1100px) {
+    .main-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  /* Voice Assistant Box */
+  .voice-box {
+    background: linear-gradient(135deg, #1a1625 0%, #2d1b3d 100%);
+    border-radius: 20px;
+    padding: 32px;
+    color: white;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    font-size: 13px;
+    opacity: 0.8;
+  }
+  
+  .status-text {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #10b981;
+    animation: pulse-dot 2s infinite;
+  }
+  
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  
+  .timer {
+    font-family: 'Courier New', monospace;
+  }
+  
+  /* Audio Visualizer */
+  .visualizer {
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    margin: 32px 0;
+  }
+  
+  .bar {
+    width: 4px;
+    background: linear-gradient(180deg, #ff1966, #e40046);
+    border-radius: 2px;
+    transition: height 0.1s ease;
+  }
+  
+  .visualizer.active .bar {
+    animation: wave 1.2s ease-in-out infinite;
+  }
+  
+  @keyframes wave {
+    0%, 100% { height: 20px; }
+    50% { height: 80px; }
+  }
+  
+  .bar:nth-child(1) { animation-delay: 0s; }
+  .bar:nth-child(2) { animation-delay: 0.1s; }
+  .bar:nth-child(3) { animation-delay: 0.2s; }
+  .bar:nth-child(4) { animation-delay: 0.3s; }
+  .bar:nth-child(5) { animation-delay: 0.4s; }
+  .bar:nth-child(6) { animation-delay: 0.5s; }
+  .bar:nth-child(7) { animation-delay: 0.6s; }
+  .bar:nth-child(8) { animation-delay: 0.5s; }
+  .bar:nth-child(9) { animation-delay: 0.4s; }
+  .bar:nth-child(10) { animation-delay: 0.3s; }
+  .bar:nth-child(11) { animation-delay: 0.2s; }
+  .bar:nth-child(12) { animation-delay: 0.1s; }
+  .bar:nth-child(13) { animation-delay: 0s; }
+  .bar:nth-child(14) { animation-delay: 0.1s; }
+  .bar:nth-child(15) { animation-delay: 0.2s; }
+  
+  .kam-label {
+    text-align: center;
+    font-size: 12px;
+    opacity: 0.6;
+    margin-top: -16px;
+  }
+  
+  /* AI Response Text */
+  .ai-response {
+    background: rgba(255,255,255,0.05);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 24px 0;
+    min-height: 80px;
+    font-size: 15px;
+    line-height: 1.6;
+    text-align: center;
+  }
+  
+  /* Controls */
+  .controls {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  
+  .btn {
+    padding: 14px 32px;
+    border-radius: 10px;
+    border: none;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  
+  .btn-primary {
+    background: #e40046;
+    color: white;
+  }
+  
+  .btn-primary:hover:not(:disabled) {
+    background: #c40039;
+    transform: translateY(-2px);
+  }
+  
+  .btn-secondary {
+    background: rgba(255,255,255,0.1);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  
+  .btn-secondary:hover:not(:disabled) {
+    background: rgba(255,255,255,0.15);
+  }
+  
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  /* Language Selector */
+  .language-selector {
+    text-align: center;
+    font-size: 13px;
+    opacity: 0.7;
+  }
+  
+  .language-selector select {
+    background: rgba(255,255,255,0.1);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 6px 12px;
+    border-radius: 6px;
+    margin: 0 8px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  
+  /* Transcript */
+  .transcript-section {
+    margin-top: 24px;
+  }
+  
+  .transcript-header {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    opacity: 0.8;
+  }
+  
+  .transcript {
+    max-height: 200px;
+    overflow-y: auto;
+    background: rgba(255,255,255,0.05);
+    border-radius: 10px;
+    padding: 12px;
+  }
+  
+  .transcript::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .transcript::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.05);
+    border-radius: 3px;
+  }
+  
+  .transcript::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.2);
+    border-radius: 3px;
+  }
+  
+  .transcript-msg {
+    margin-bottom: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  
+  .transcript-msg.user {
+    color: #ff1966;
+    font-weight: 500;
+  }
+  
+  .transcript-msg.bot {
+    color: rgba(255,255,255,0.9);
+  }
+  
+  /* Right Sidebar */
+  .sidebar {
+    display: grid;
+    gap: 16px;
+  }
+  
+  /* Data Card */
+  .data-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  
+  .card-header {
+    font-size: 14px;
+    color: #6c757d;
+    margin-bottom: 16px;
+    font-weight: 500;
+  }
+  
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  
+  .metric {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 12px;
+  }
+  
+  .metric-label {
+    font-size: 12px;
+    color: #6c757d;
+    margin-bottom: 4px;
+  }
+  
+  .metric-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a1a1a;
+  }
+  
+  .metric-from {
+    font-size: 12px;
+    color: #adb5bd;
+    font-weight: 400;
+  }
+  
+  .metric-change {
+    display: inline-block;
+    margin-top: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  
+  .metric-change.down {
+    background: #fee;
+    color: #dc3545;
+  }
+  
+  .metric-change.up {
+    background: #d1f4e0;
+    color: #10b981;
+  }
+  
+  /* Agent Insights */
+  .insights-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .insight-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+    background: #f8f9fa;
+    border-radius: 8px;
+  }
+  
+  .insight-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #10b981;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  
+  .insight-content {
+    flex: 1;
+  }
+  
+  .insight-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 2px;
+  }
+  
+  .insight-desc {
+    font-size: 12px;
+    color: #6c757d;
+    line-height: 1.4;
+  }
+  
+  /* Action Plan */
+  .action-plan-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  
+  .plan-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  
+  .plan-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a1a1a;
+  }
+  
+  .plan-id {
+    font-size: 12px;
+    color: #e40046;
+    font-weight: 600;
+  }
+  
+  .plan-actions {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .plan-actions li {
+    font-size: 13px;
+    color: #495057;
+    padding-left: 20px;
+    position: relative;
+  }
+  
+  .plan-actions li::before {
+    content: '•';
+    position: absolute;
+    left: 8px;
+    color: #e40046;
+    font-weight: bold;
+  }
+  
+  .plan-footer {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #e9ecef;
+    font-size: 12px;
+    color: #6c757d;
+  }
+  
+  .empty-state {
+    text-align: center;
+    color: #adb5bd;
+    font-size: 13px;
+    padding: 20px;
+  }
+  
+  .error-msg {
+    background: #fee;
+    color: #dc3545;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-top: 12px;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">🎯</div>
+    <div class="header-text">
+      <h1>Virtual KAM</h1>
+      <p>Snapdeal Seller Experience</p>
+    </div>
+    <div class="seller-info">
+      <div class="seller-name">Rakesh</div>
+      <div class="seller-store">Rakesh Home & Kitchen</div>
+    </div>
+  </div>
+  
+  <!-- Main Grid -->
+  <div class="main-grid">
+    <!-- Voice Assistant Box -->
+    <div class="voice-box">
+      <div class="status-bar">
+        <div class="status-text">
+          <span class="status-dot"></span>
+          <span id="statusText">Virtual KAM is ready</span>
+        </div>
+        <div class="timer" id="timer">00:00</div>
+      </div>
+      
+      <!-- Audio Visualizer -->
+      <div class="visualizer" id="visualizer">
+        <div class="bar" style="height: 20px"></div>
+        <div class="bar" style="height: 40px"></div>
+        <div class="bar" style="height: 60px"></div>
+        <div class="bar" style="height: 50px"></div>
+        <div class="bar" style="height: 30px"></div>
+        <div class="bar" style="height: 70px"></div>
+        <div class="bar" style="height: 80px"></div>
+        <div class="bar" style="height: 70px"></div>
+        <div class="bar" style="height: 50px"></div>
+        <div class="bar" style="height: 60px"></div>
+        <div class="bar" style="height: 40px"></div>
+        <div class="bar" style="height: 30px"></div>
+        <div class="bar" style="height: 20px"></div>
+        <div class="bar" style="height: 35px"></div>
+        <div class="bar" style="height: 45px"></div>
+      </div>
+      <div class="kam-label">Virtual KAM</div>
+      
+      <!-- AI Response -->
+      <div class="ai-response" id="aiResponse">
+        Press "Call Virtual KAM" to start your conversation
+      </div>
+      
+      <!-- Controls -->
+      <div class="controls">
+        <button class="btn btn-primary" id="startBtn">Call Virtual KAM</button>
+        <button class="btn btn-secondary" id="endBtn" disabled>End call</button>
+      </div>
+      
+      <!-- Language Selector -->
+      <div class="language-selector">
+        Speak in
+        <select id="lang">
+          <option value="en-IN">English</option>
+          <option value="hi-IN">Hindi/Hinglish</option>
+        </select>
+        | Best in Chrome or Edge, with the mic allowed
+      </div>
+      
+      <!-- Transcript -->
+      <div class="transcript-section">
+        <div class="transcript-header">Call transcript</div>
+        <div class="transcript" id="transcript">
+          <div class="empty-state">Transcript will appear here during the call</div>
+        </div>
+      </div>
+      
+      <div id="error"></div>
+    </div>
+    
+    <!-- Right Sidebar -->
+    <div class="sidebar">
+      <!-- This month vs last month -->
+      <div class="data-card">
+        <div class="card-header">This month vs last month<br><small style="font-size: 12px; opacity: 0.8;">What the agent sees before the call starts</small></div>
+        <div class="metrics-grid">
+          <div class="metric">
+            <div class="metric-label">Sales</div>
+            <div class="metric-value">₹1.35L <span class="metric-from">from ₹2.00L</span></div>
+            <span class="metric-change down">-32.5%</span>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Orders</div>
+            <div class="metric-value">270 <span class="metric-from">from 400</span></div>
+            <span class="metric-change down">-32.5%</span>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Cancellation rate</div>
+            <div class="metric-value">14% <span class="metric-from">from 8%</span></div>
+            <span class="metric-change down">+6 pts</span>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Out-of-stock products</div>
+            <div class="metric-value">18 <span class="metric-from">from 5</span></div>
+            <span class="metric-change down">3.6× more</span>
+          </div>
+        </div>
+        <p style="margin-top: 12px; font-size: 12px; color: #6c757d;">
+          Average selling price is unchanged at ₹500, so this is not a volume problem, not a pricing one.
+        </p>
+      </div>
+      
+      <!-- What the agent did -->
+      <div class="data-card">
+        <div class="card-header">What the agent did<br><small style="font-size: 12px; opacity: 0.8;">Every number it speaks comes from these checks</small></div>
+        <div class="insights-list" id="agentInsights">
+          <div class="empty-state">Tool calls will appear here during conversation</div>
+        </div>
+      </div>
+      
+      <!-- Action plan -->
+      <div class="action-plan-card" id="actionPlanCard">
+        <div class="card-header">Action plan<br><small style="font-size: 12px; opacity: 0.8;">Saved when the seller agrees</small></div>
+        <div class="empty-state" id="actionPlanContent">Plan will be created at the end of the call</div>
+      </div>
+      
+      <!-- Summary -->
+      <div class="data-card" id="summaryCard" style="display: none;">
+        <div class="card-header">📋 Summary<br><small style="font-size: 12px; opacity: 0.8;">Key issues, recommendations & next steps</small></div>
+        <div id="summaryContent"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let sessionId = crypto.randomUUID();
+let active = false;
+let rec = null;
+let speaking = false;
+let startTime = null;
+let timerInterval = null;
+
+function updateTimer() {
+  if (!startTime) return;
+  const elapsed = Math.floor((Date.now() - startTime) / 1000);
+  const mins = Math.floor(elapsed / 60).toString().padStart(2, '0');
+  const secs = (elapsed % 60).toString().padStart(2, '0');
+  $('timer').textContent = `${mins}:${secs}`;
+}
+
+function setState(state, text) {
+  $('statusText').textContent = text;
+  const viz = $('visualizer');
+  
+  if (state === 'listening') {
+    viz.classList.add('active');
+  } else if (state === 'speaking') {
+    viz.classList.add('active');
+  } else {
+    viz.classList.remove('active');
+  }
+}
+
+function addTranscript(role, text) {
+  const transcript = $('transcript');
+  if (transcript.querySelector('.empty-state')) {
+    transcript.innerHTML = '';
+  }
+  
+  const msg = document.createElement('div');
+  msg.className = `transcript-msg ${role}`;
+  msg.textContent = (role === 'user' ? 'You: ' : 'KAM: ') + text;
+  transcript.appendChild(msg);
+  transcript.scrollTop = transcript.scrollHeight;
+}
+
+function speak(text) {
+  return new Promise((resolve) => {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = $('lang').value;
+    u.rate = u.lang === 'hi-IN' ? 0.95 : 1.0;
+    u.pitch = u.lang === 'hi-IN' ? 1.0 : 1.05;
+    u.volume = 1.0;
+    
+    u.onend = u.onerror = () => {
+      speaking = false;
+      resolve();
+    };
+    
+    speaking = true;
+    setState('speaking', 'Virtual KAM is speaking');
+    $('aiResponse').textContent = text;
+    speechSynthesis.speak(u);
+  });
+}
+
+function listen() {
+  if (!active) return;
+  rec = new SR();
+  rec.lang = $('lang').value;
+  rec.interimResults = true;
+  rec.continuous = false;
+  let finalText = '';
+  
+  setState('listening', 'Listening... speak now');
+  $('aiResponse').textContent = '🎤 Listening...';
+  
+  rec.onresult = (e) => {
+    let t = '';
+    for (const r of e.results) t += r[0].transcript;
+    finalText = t;
+    $('aiResponse').textContent = `Heard: "${t}"`;
+  };
+  
+  rec.onerror = (e) => {
+    if (e.error === 'not-allowed') {
+      $('error').innerHTML = '<div class="error-msg">❌ Microphone blocked. Please allow mic access and retry.</div>';
+      endCall();
+    }
+  };
+  
+  rec.onend = () => {
+    if (!active) return;
+    if (finalText.trim()) {
+      send(finalText.trim());
+    } else {
+      listen();
+    }
+  };
+  
+  try {
+    rec.start();
+  } catch(e) {}
+}
+
+async function send(text) {
+  setState('thinking', 'Virtual KAM is thinking...');
+  $('aiResponse').textContent = '🤔 Thinking...';
+  
+  if (text !== '[call connected]') {
+    addTranscript('user', text);
+  }
+  
+  try {
+    const r = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ session_id: sessionId, message: text })
+    });
+    
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.error || 'Server error');
+    
+    showTrace(j.trace);
+    addTranscript('bot', j.reply);
+    await speak(j.reply);
+    listen();
+  } catch (e) {
+    $('error').innerHTML = `<div class="error-msg">❌ Error: ${e.message}</div>`;
+    setState('', 'Error occurred');
+    $('aiResponse').textContent = 'Error occurred. Please end call and try again.';
+  }
+}
+
+function showTrace(trace) {
+  const insights = $('agentInsights');
+  
+  for (const t of trace) {
+    if (insights.querySelector('.empty-state')) {
+      insights.innerHTML = '';
+    }
+    
+    const item = document.createElement('div');
+    item.className = 'insight-item';
+    item.innerHTML = `
+      <div class="insight-icon">✓</div>
+      <div class="insight-content">
+        <div class="insight-title">${t.tool}</div>
+        <div class="insight-desc">${JSON.stringify(t.args).substring(0, 100)}...</div>
+      </div>
+    `;
+    insights.appendChild(item);
+    
+    if (t.tool === 'save_action_plan') {
+      const planCard = $('actionPlanContent');
+      planCard.innerHTML = `
+        <div class="plan-header">
+          <span class="plan-title">Action plan</span>
+          <span class="plan-id">${t.result.id || 'PLAN-001'}</span>
+        </div>
+        <ul class="plan-actions">
+          ${(t.result.agreed_actions || t.result.actions || []).map(a => `<li>${a}</li>`).join('')}
+        </ul>
+        <div class="plan-footer">
+          Follow-up in ${t.result.follow_up_in_days} days<br>
+          ${t.result.delivery_method || t.result.channel || 'WhatsApp summary + callback'}
+        </div>
+      `;
+      
+      // Show summary
+      showSummary(t.result);
+    }
+  }
+}
+
+function showSummary(result) {
+  const summaryCard = $('summaryCard');
+  const summaryContent = $('summaryContent');
+  
+  summaryCard.style.display = 'block';
+  summaryContent.innerHTML = `
+    <div style="margin-bottom: 16px;">
+      <div style="font-weight: 600; font-size: 13px; margin-bottom: 8px; color: #e40046;">🎯 Key Issues:</div>
+      <ul style="list-style: none; padding: 0; margin: 0;">
+        ${(result.key_issues || result.issues || []).map(i => `<li style="font-size: 13px; color: #495057; padding: 4px 0;">• ${i}</li>`).join('')}
+      </ul>
+    </div>
+    <div style="margin-bottom: 16px;">
+      <div style="font-weight: 600; font-size: 13px; margin-bottom: 8px; color: #10b981;">✅ Recommendations:</div>
+      <ul style="list-style: none; padding: 0; margin: 0;">
+        ${(result.agreed_actions || result.actions || []).map(a => `<li style="font-size: 13px; color: #495057; padding: 4px 0;">• ${a}</li>`).join('')}
+      </ul>
+    </div>
+    <div style="padding: 12px; background: #f8f9fa; border-radius: 8px; font-size: 13px; color: #495057;">
+      <strong>📅 Next Steps:</strong> Follow-up call in ${result.follow_up_in_days} days via ${result.delivery_method || result.channel || 'WhatsApp'}
+    </div>
+  `;
+}
+
+function endCall() {
+  active = false;
+  try { rec && rec.abort(); } catch(e) {}
+  speechSynthesis.cancel();
+  
+  if (timerInterval) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
+  
+  setState('', 'Call ended');
+  $('aiResponse').textContent = 'Call ended. Press "Call Virtual KAM" to start a new conversation.';
+  $('startBtn').disabled = false;
+  $('endBtn').disabled = true;
+}
+
+$('startBtn').onclick = () => {
+  if (!SR) {
+    $('error').innerHTML = '<div class="error-msg">❌ Speech recognition not supported. Please use Chrome or Edge.</div>';
+    return;
+  }
+  
+  $('error').innerHTML = '';
+  $('transcript').innerHTML = '<div class="empty-state">Transcript will appear here during the call</div>';
+  $('agentInsights').innerHTML = '<div class="empty-state">Tool calls will appear here during conversation</div>';
+  $('actionPlanContent').innerHTML = '<div class="empty-state">Plan will be created at the end of the call</div>';
+  $('summaryCard').style.display = 'none';
+  
+  sessionId = crypto.randomUUID();
+  active = true;
+  startTime = Date.now();
+  timerInterval = setInterval(updateTimer, 1000);
+  
+  $('startBtn').disabled = true;
+  $('endBtn').disabled = false;
+  
+  speechSynthesis.getVoices();
+  send('[call connected]');
+};
+
+$('endBtn').onclick = endCall;
+</script>
+</body>
+</html>
