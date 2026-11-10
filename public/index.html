@@ -247,7 +247,7 @@
   }
   
   .language-selector select {
-    background: rgba(255,255,255,0.1);
+    background: rgba(0,0,0,0.5);
     color: white;
     border: 1px solid rgba(255,255,255,0.2);
     padding: 6px 12px;
@@ -255,6 +255,11 @@
     margin: 0 8px;
     font-size: 13px;
     cursor: pointer;
+  }
+  
+  .language-selector select option {
+    background: #1a1625;
+    color: white;
   }
   
   /* Transcript */
@@ -421,61 +426,43 @@
     line-height: 1.4;
   }
   
-  /* Action Plan */
-  .action-plan-card {
-    background: white;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  }
-  
-  .plan-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-  }
-  
-  .plan-title {
+  /* Issue/Recommendation Items */
+  .issue-item, .recommendation-item, .next-step-item {
+    background: #f8f9fa;
+    border-left: 3px solid #e40046;
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 10px;
     font-size: 14px;
-    font-weight: 600;
-    color: #1a1a1a;
-  }
-  
-  .plan-id {
-    font-size: 12px;
-    color: #e40046;
-    font-weight: 600;
-  }
-  
-  .plan-actions {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-  
-  .plan-actions li {
-    font-size: 13px;
+    line-height: 1.5;
     color: #495057;
-    padding-left: 20px;
-    position: relative;
   }
   
-  .plan-actions li::before {
-    content: '•';
-    position: absolute;
-    left: 8px;
-    color: #e40046;
-    font-weight: bold;
+  .recommendation-item {
+    border-left-color: #10b981;
   }
   
-  .plan-footer {
-    margin-top: 12px;
-    padding-top: 12px;
-    border-top: 1px solid #e9ecef;
+  .next-step-item {
+    border-left-color: #3b82f6;
+  }
+  
+  .issue-number, .rec-number {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    background: #e40046;
+    color: white;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 24px;
     font-size: 12px;
-    color: #6c757d;
+    font-weight: 600;
+    margin-right: 8px;
+    flex-shrink: 0;
+  }
+  
+  .rec-number {
+    background: #10b981;
   }
   
   .empty-state {
@@ -561,6 +548,10 @@
           <option value="en-IN">English</option>
           <option value="hi-IN">Hindi/Hinglish</option>
         </select>
+        | Voice
+        <select id="voiceSelect">
+          <option value="auto">Auto (Best)</option>
+        </select>
         | Best in Chrome or Edge, with the mic allowed
       </div>
       
@@ -577,54 +568,31 @@
     
     <!-- Right Sidebar -->
     <div class="sidebar">
-      <!-- This month vs last month -->
+      <!-- Key Issues -->
       <div class="data-card">
-        <div class="card-header">This month vs last month<br><small style="font-size: 12px; opacity: 0.8;">What the agent sees before the call starts</small></div>
-        <div class="metrics-grid">
-          <div class="metric">
-            <div class="metric-label">Sales</div>
-            <div class="metric-value">₹1.35L <span class="metric-from">from ₹2.00L</span></div>
-            <span class="metric-change down">-32.5%</span>
-          </div>
-          <div class="metric">
-            <div class="metric-label">Orders</div>
-            <div class="metric-value">270 <span class="metric-from">from 400</span></div>
-            <span class="metric-change down">-32.5%</span>
-          </div>
-          <div class="metric">
-            <div class="metric-label">Cancellation rate</div>
-            <div class="metric-value">14% <span class="metric-from">from 8%</span></div>
-            <span class="metric-change down">+6 pts</span>
-          </div>
-          <div class="metric">
-            <div class="metric-label">Out-of-stock products</div>
-            <div class="metric-value">18 <span class="metric-from">from 5</span></div>
-            <span class="metric-change down">3.6× more</span>
-          </div>
+        <div class="card-header">
+          🎯 Key Issues
+          <br><small style="font-size: 12px; opacity: 0.8;">Problems identified during the conversation</small>
         </div>
-        <p style="margin-top: 12px; font-size: 12px; color: #6c757d;">
-          Average selling price is unchanged at ₹500, so this is not a volume problem, not a pricing one.
-        </p>
+        <div id="keyIssues" class="empty-state">Issues will appear here after diagnosis</div>
       </div>
       
-      <!-- What the agent did -->
+      <!-- Recommendations -->
       <div class="data-card">
-        <div class="card-header">What the agent did<br><small style="font-size: 12px; opacity: 0.8;">Every number it speaks comes from these checks</small></div>
-        <div class="insights-list" id="agentInsights">
-          <div class="empty-state">Tool calls will appear here during conversation</div>
+        <div class="card-header">
+          ✅ Recommendations
+          <br><small style="font-size: 12px; opacity: 0.8;">Actions suggested by the agent</small>
         </div>
+        <div id="recommendations" class="empty-state">Recommendations will appear here during conversation</div>
       </div>
       
-      <!-- Action plan -->
-      <div class="action-plan-card" id="actionPlanCard">
-        <div class="card-header">Action plan<br><small style="font-size: 12px; opacity: 0.8;">Saved when the seller agrees</small></div>
-        <div class="empty-state" id="actionPlanContent">Plan will be created at the end of the call</div>
-      </div>
-      
-      <!-- Summary -->
-      <div class="data-card" id="summaryCard" style="display: none;">
-        <div class="card-header">📋 Summary<br><small style="font-size: 12px; opacity: 0.8;">Key issues, recommendations & next steps</small></div>
-        <div id="summaryContent"></div>
+      <!-- Next Steps -->
+      <div class="data-card">
+        <div class="card-header">
+          📅 Next Steps
+          <br><small style="font-size: 12px; opacity: 0.8;">Follow-up plan and timeline</small>
+        </div>
+        <div id="nextSteps" class="empty-state">Next steps will be confirmed at the end</div>
       </div>
     </div>
   </div>
@@ -639,6 +607,48 @@ let rec = null;
 let speaking = false;
 let startTime = null;
 let timerInterval = null;
+let availableVoices = [];
+
+// Load and populate voices
+function loadVoices() {
+  availableVoices = speechSynthesis.getVoices();
+  const select = $('voiceSelect');
+  const currentLang = $('lang').value;
+  
+  select.innerHTML = '<option value="auto">Auto (Best)</option>';
+  
+  availableVoices
+    .filter(v => v.lang === currentLang || v.lang.startsWith(currentLang.slice(0,2)))
+    .forEach((v, i) => {
+      const option = document.createElement('option');
+      option.value = i;
+      option.textContent = `${v.name} ${v.localService ? '(Offline)' : '(Online)'}`;
+      select.appendChild(option);
+    });
+}
+
+// Initialize voices
+speechSynthesis.onvoiceschanged = loadVoices;
+loadVoices();
+
+// Update voice list when language changes
+$('lang').onchange = loadVoices;
+
+function pickVoice(lang) {
+  // Check if user selected a specific voice
+  const select = $('voiceSelect');
+  if (select.value !== 'auto') {
+    const selectedVoice = availableVoices[parseInt(select.value)];
+    if (selectedVoice) return selectedVoice;
+  }
+  
+  const v = availableVoices;
+  return v.find(x => x.lang === lang && /google/i.test(x.name)) ||
+         v.find(x => x.lang === lang && /natural|neural|premium|enhanced/i.test(x.name)) ||
+         v.find(x => x.lang === lang && x.localService === false) ||
+         v.find(x => x.lang === lang) ||
+         v.find(x => x.lang.startsWith(lang.slice(0,2)));
+}
 
 function updateTimer() {
   if (!startTime) return;
@@ -679,6 +689,14 @@ function speak(text) {
     speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
     u.lang = $('lang').value;
+    
+    // Select voice (user selected or auto)
+    const v = pickVoice(u.lang);
+    if (v) {
+      u.voice = v;
+      console.log('Using voice:', v.name, v.lang);
+    }
+    
     u.rate = u.lang === 'hi-IN' ? 0.95 : 1.0;
     u.pitch = u.lang === 'hi-IN' ? 1.0 : 1.05;
     u.volume = 1.0;
@@ -764,68 +782,93 @@ async function send(text) {
 }
 
 function showTrace(trace) {
-  const insights = $('agentInsights');
-  
   for (const t of trace) {
-    if (insights.querySelector('.empty-state')) {
-      insights.innerHTML = '';
+    // When diagnose_drop is called, extract and show key issues
+    if (t.tool === 'diagnose_drop' && t.result) {
+      const issuesDiv = $('keyIssues');
+      issuesDiv.innerHTML = '';
+      
+      const result = t.result;
+      
+      // Extract issues from root_cause_analysis or ranked_findings
+      const issues = [];
+      
+      if (result.root_cause_analysis) {
+        if (result.root_cause_analysis.inventory_issue?.is_cause) {
+          issues.push(`📦 Inventory: ${result.root_cause_analysis.inventory_issue.detail}`);
+        }
+        if (result.root_cause_analysis.cancellation_issue?.is_cause) {
+          issues.push(`❌ Cancellations: ${result.root_cause_analysis.cancellation_issue.detail}`);
+        }
+        if (result.root_cause_analysis.visibility_issue?.is_cause) {
+          issues.push(`👁️ Visibility: ${result.root_cause_analysis.visibility_issue.detail}`);
+        }
+      } else if (result.ranked_findings) {
+        result.ranked_findings.forEach((f, i) => {
+          issues.push(`${i + 1}. ${f.issue || f.category}: ${f.detail || f.impact}`);
+        });
+      }
+      
+      if (issues.length > 0) {
+        issues.forEach((issue, idx) => {
+          const item = document.createElement('div');
+          item.className = 'issue-item';
+          item.innerHTML = `<span class="issue-number">${idx + 1}</span>${issue}`;
+          issuesDiv.appendChild(item);
+        });
+      } else {
+        issuesDiv.innerHTML = '<div class="empty-state">No critical issues identified</div>';
+      }
     }
     
-    const item = document.createElement('div');
-    item.className = 'insight-item';
-    item.innerHTML = `
-      <div class="insight-icon">✓</div>
-      <div class="insight-content">
-        <div class="insight-title">${t.tool}</div>
-        <div class="insight-desc">${JSON.stringify(t.args).substring(0, 100)}...</div>
-      </div>
-    `;
-    insights.appendChild(item);
-    
-    if (t.tool === 'save_action_plan') {
-      const planCard = $('actionPlanContent');
-      planCard.innerHTML = `
-        <div class="plan-header">
-          <span class="plan-title">Action plan</span>
-          <span class="plan-id">${t.result.id || 'PLAN-001'}</span>
+    // When save_action_plan is called, show recommendations and next steps
+    if (t.tool === 'save_action_plan' && t.result) {
+      const result = t.result;
+      
+      // Show Key Issues
+      if (result.key_issues || result.issues) {
+        const issuesDiv = $('keyIssues');
+        issuesDiv.innerHTML = '';
+        const issuesList = result.key_issues || result.issues;
+        issuesList.forEach((issue, idx) => {
+          const item = document.createElement('div');
+          item.className = 'issue-item';
+          item.innerHTML = `<span class="issue-number">${idx + 1}</span>${issue}`;
+          issuesDiv.appendChild(item);
+        });
+      }
+      
+      // Show Recommendations
+      const recDiv = $('recommendations');
+      recDiv.innerHTML = '';
+      const actions = result.agreed_actions || result.actions || [];
+      if (actions.length > 0) {
+        actions.forEach((action, idx) => {
+          const item = document.createElement('div');
+          item.className = 'recommendation-item';
+          item.innerHTML = `<span class="rec-number">${idx + 1}</span>${action}`;
+          recDiv.appendChild(item);
+        });
+      }
+      
+      // Show Next Steps
+      const stepsDiv = $('nextSteps');
+      stepsDiv.innerHTML = `
+        <div class="next-step-item">
+          <strong>📞 Follow-up Call:</strong><br>
+          Scheduled in ${result.follow_up_in_days} days
         </div>
-        <ul class="plan-actions">
-          ${(t.result.agreed_actions || t.result.actions || []).map(a => `<li>${a}</li>`).join('')}
-        </ul>
-        <div class="plan-footer">
-          Follow-up in ${t.result.follow_up_in_days} days<br>
-          ${t.result.delivery_method || t.result.channel || 'WhatsApp summary + callback'}
+        <div class="next-step-item">
+          <strong>📱 Delivery Method:</strong><br>
+          ${result.delivery_method || result.channel || 'WhatsApp summary + callback'}
+        </div>
+        <div class="next-step-item">
+          <strong>📋 Plan ID:</strong><br>
+          ${result.id || 'PLAN-001'}
         </div>
       `;
-      
-      // Show summary
-      showSummary(t.result);
     }
   }
-}
-
-function showSummary(result) {
-  const summaryCard = $('summaryCard');
-  const summaryContent = $('summaryContent');
-  
-  summaryCard.style.display = 'block';
-  summaryContent.innerHTML = `
-    <div style="margin-bottom: 16px;">
-      <div style="font-weight: 600; font-size: 13px; margin-bottom: 8px; color: #e40046;">🎯 Key Issues:</div>
-      <ul style="list-style: none; padding: 0; margin: 0;">
-        ${(result.key_issues || result.issues || []).map(i => `<li style="font-size: 13px; color: #495057; padding: 4px 0;">• ${i}</li>`).join('')}
-      </ul>
-    </div>
-    <div style="margin-bottom: 16px;">
-      <div style="font-weight: 600; font-size: 13px; margin-bottom: 8px; color: #10b981;">✅ Recommendations:</div>
-      <ul style="list-style: none; padding: 0; margin: 0;">
-        ${(result.agreed_actions || result.actions || []).map(a => `<li style="font-size: 13px; color: #495057; padding: 4px 0;">• ${a}</li>`).join('')}
-      </ul>
-    </div>
-    <div style="padding: 12px; background: #f8f9fa; border-radius: 8px; font-size: 13px; color: #495057;">
-      <strong>📅 Next Steps:</strong> Follow-up call in ${result.follow_up_in_days} days via ${result.delivery_method || result.channel || 'WhatsApp'}
-    </div>
-  `;
 }
 
 function endCall() {
@@ -852,9 +895,9 @@ $('startBtn').onclick = () => {
   
   $('error').innerHTML = '';
   $('transcript').innerHTML = '<div class="empty-state">Transcript will appear here during the call</div>';
-  $('agentInsights').innerHTML = '<div class="empty-state">Tool calls will appear here during conversation</div>';
-  $('actionPlanContent').innerHTML = '<div class="empty-state">Plan will be created at the end of the call</div>';
-  $('summaryCard').style.display = 'none';
+  $('keyIssues').innerHTML = '<div class="empty-state">Issues will appear here after diagnosis</div>';
+  $('recommendations').innerHTML = '<div class="empty-state">Recommendations will appear here during conversation</div>';
+  $('nextSteps').innerHTML = '<div class="empty-state">Next steps will be confirmed at the end</div>';
   
   sessionId = crypto.randomUUID();
   active = true;
