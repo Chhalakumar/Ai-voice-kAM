@@ -58,4 +58,56 @@ def chat(body: ChatIn):
     return {"reply": reply or "Sorry, could you say that again?", "trace": trace}
 
 
+class UpdateDataIn(BaseModel):
+    last_sales: int
+    current_sales: int
+    last_orders: int
+    current_orders: int
+    last_cancel_rate: float
+    current_cancel_rate: float
+    last_asp: int
+    current_asp: int
+    last_oos: int
+    current_oos: int
+
+
+@app.post("/api/update-data")
+def update_data(body: UpdateDataIn):
+    """Update mock seller data for testing different scenarios."""
+    from .data import LAST, CURRENT
+    
+    # Update LAST month data
+    LAST["sales"] = body.last_sales
+    LAST["orders"] = body.last_orders
+    LAST["cancel_rate"] = body.last_cancel_rate / 100  # Convert percentage to decimal
+    LAST["asp"] = body.last_asp
+    LAST["oos"] = body.last_oos
+    
+    # Update CURRENT month data
+    CURRENT["sales"] = body.current_sales
+    CURRENT["orders"] = body.current_orders
+    CURRENT["cancel_rate"] = body.current_cancel_rate / 100
+    CURRENT["asp"] = body.current_asp
+    CURRENT["oos"] = body.current_oos
+    
+    return {
+        "success": True,
+        "message": "Mock data updated successfully",
+        "data": {
+            "last": LAST,
+            "current": CURRENT
+        }
+    }
+
+
+@app.get("/api/get-data")
+def get_data():
+    """Get current mock seller data."""
+    from .data import LAST, CURRENT
+    return {
+        "last": LAST,
+        "current": CURRENT
+    }
+
+
 app.mount("/", StaticFiles(directory=Path(__file__).parent.parent / "public", html=True), name="static")

@@ -481,6 +481,62 @@
     margin-top: 12px;
     text-align: center;
   }
+  
+  /* Mock Data Grid */
+  .mock-data-grid {
+    display: grid;
+    gap: 10px;
+  }
+  
+  .mock-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .mock-label {
+    font-size: 12px;
+    color: #495057;
+    font-weight: 500;
+  }
+  
+  .mock-input {
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1a1a1a;
+    background: #f8f9fa;
+    transition: all 0.2s;
+  }
+  
+  .mock-input:focus {
+    outline: none;
+    border-color: #e40046;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(228, 0, 70, 0.1);
+  }
+  
+  .btn-update-data {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #e40046, #c40039);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 12px;
+    transition: all 0.2s;
+  }
+  
+  .btn-update-data:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(228, 0, 70, 0.3);
+  }
 </style>
 </head>
 <body>
@@ -593,6 +649,60 @@
           <br><small style="font-size: 12px; opacity: 0.8;">Follow-up plan and timeline</small>
         </div>
         <div id="nextSteps" class="empty-state">Next steps will be confirmed at the end</div>
+      </div>
+      
+      <!-- Mock Data (Editable) - Moved to Bottom -->
+      <div class="data-card">
+        <div class="card-header">
+          📊 Mock Seller Data (Editable)
+          <br><small style="font-size: 12px; opacity: 0.8;">Edit these values to test different scenarios</small>
+        </div>
+        <div class="mock-data-grid">
+          <div class="mock-row">
+            <label class="mock-label">Sales - Last Month (₹)</label>
+            <input type="number" id="lastSales" class="mock-input" value="200000">
+          </div>
+          <div class="mock-row">
+            <label class="mock-label">Sales - This Month (₹)</label>
+            <input type="number" id="currentSales" class="mock-input" value="135000">
+          </div>
+          <div class="mock-row">
+            <label class="mock-label">Orders - Last Month</label>
+            <input type="number" id="lastOrders" class="mock-input" value="400">
+          </div>
+          <div class="mock-row">
+            <label class="mock-label">Orders - This Month</label>
+            <input type="number" id="currentOrders" class="mock-input" value="270">
+          </div>
+          <div class="mock-row">
+            <label class="mock-label">Cancellation Rate - Last (%)</label>
+            <input type="number" id="lastCancel" class="mock-input" value="8" step="0.1">
+          </div>
+          <div class="mock-row">
+            <label class="mock-label">Cancellation Rate - This (%)</label>
+            <input type="number" id="currentCancel" class="mock-input" value="14" step="0.1">
+          </div>
+          <div class="mock-row">
+            <label class="mock-label">Avg Selling Price - Last (₹)</label>
+            <input type="number" id="lastASP" class="mock-input" value="500">
+          </div>
+          <div class="mock-row">
+            <label class="mock-label">Avg Selling Price - This (₹)</label>
+            <input type="number" id="currentASP" class="mock-input" value="500">
+          </div>
+          <div class="mock-row">
+            <label class="mock-label">Out-of-Stock - Last Month</label>
+            <input type="number" id="lastOOS" class="mock-input" value="5">
+          </div>
+          <div class="mock-row">
+            <label class="mock-label">Out-of-Stock - This Month</label>
+            <input type="number" id="currentOOS" class="mock-input" value="18">
+          </div>
+        </div>
+        <button class="btn-update-data" id="updateDataBtn">💾 Update Data & Restart</button>
+        <p style="margin-top: 12px; font-size: 11px; color: #6c757d; font-style: italic;">
+          Note: Data updates will reset the conversation. The agent will use your new values.
+        </p>
       </div>
     </div>
   </div>
@@ -912,6 +1022,61 @@ $('startBtn').onclick = () => {
 };
 
 $('endBtn').onclick = endCall;
+
+// Update Data Button
+$('updateDataBtn').onclick = async () => {
+  const updateBtn = $('updateDataBtn');
+  updateBtn.disabled = true;
+  updateBtn.textContent = '⏳ Updating...';
+  
+  try {
+    const response = await fetch('/api/update-data', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        last_sales: parseInt($('lastSales').value),
+        current_sales: parseInt($('currentSales').value),
+        last_orders: parseInt($('lastOrders').value),
+        current_orders: parseInt($('currentOrders').value),
+        last_cancel_rate: parseFloat($('lastCancel').value),
+        current_cancel_rate: parseFloat($('currentCancel').value),
+        last_asp: parseInt($('lastASP').value),
+        current_asp: parseInt($('currentASP').value),
+        last_oos: parseInt($('lastOOS').value),
+        current_oos: parseInt($('currentOOS').value)
+      })
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      updateBtn.textContent = '✅ Updated! Restarting...';
+      
+      // End current call if active
+      if (active) {
+        endCall();
+      }
+      
+      // Reset UI
+      $('transcript').innerHTML = '<div class="empty-state">Transcript will appear here during the call</div>';
+      $('keyIssues').innerHTML = '<div class="empty-state">Issues will appear here after diagnosis</div>';
+      $('recommendations').innerHTML = '<div class="empty-state">Recommendations will appear here during conversation</div>';
+      $('nextSteps').innerHTML = '<div class="empty-state">Next steps will be confirmed at the end</div>';
+      $('aiResponse').textContent = 'Mock data updated! Start a new call to test with new values.';
+      
+      setTimeout(() => {
+        updateBtn.textContent = '💾 Update Data & Restart';
+        updateBtn.disabled = false;
+      }, 2000);
+    }
+  } catch (error) {
+    updateBtn.textContent = '❌ Error - Try Again';
+    setTimeout(() => {
+      updateBtn.textContent = '💾 Update Data & Restart';
+      updateBtn.disabled = false;
+    }, 2000);
+  }
+};
 </script>
 </body>
 </html>
